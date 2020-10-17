@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
+use App\Models\Association;
+
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 
 class RegisterController extends Controller
 {
@@ -76,7 +79,8 @@ class RegisterController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'association' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'string', 'min:10'],
         ]);
       
         if ($validator->fails()) {
@@ -84,6 +88,7 @@ class RegisterController extends Controller
                 'message' => $validator->errors(),
             ], 400);
         }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -92,16 +97,30 @@ class RegisterController extends Controller
         ]);      
         
         if($user) {
-            $user->notify(new \App\Notifications\AccountActivation($user));
+            // Create association
+            $association = Association::create([
+                'name' => $request->association,
+            ]);
 
-            return response()->json([
-                'message' => 'Your account is created! Before you can use your account you have to activate your account. Please check your mailbox,'
-            ], 200);
+            if ($association) {
+                // Create relation between User and Association
+                $user->association_id = $association->id;
+                $user->save();
+                // Notify user
+                $user->notify(new \App\Notifications\AccountActivation($user));
+
+                return response()->json([
+                    'message' => 'Your account is created! Before you can use your account you have to activate your account. Please check your mailbox,'
+                ], 200);
+            } else {
+                return response()->json([
+                    'message' => 'Association can\'t be created. Something went wrong.',
+                ], 400);
+            }
         } else {
             return response()->json([
-                'message' => 'User cant be created. Something went wrong.',
+                'message' => 'User can\'t be created. Something went wrong.',
             ], 400);
         }
-          
     }
 }
