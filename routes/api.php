@@ -14,6 +14,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group(['middelware' => ['api'], 'prefix' => 'v1'], function() {
+    Route::post('authenticate', [App\Http\Controllers\Auth\LoginController::class, 'authenticate'])->name('authenticate'); 
+    Route::post('register', [App\Http\Controllers\Auth\RegisterController::class, 'register'])->name('reqister'); 
+
+    Route::post('reset-password',  [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset']);
+
+    Route::post('confirm/account/{token}', [App\Http\Controllers\Auth\VerificationController::class, 'accountActivation']);
+    // Need to be Authenticated before accessing these routes
+    Route::group(['middleware' => 'auth.jwt'], function () {
+        Route::group(['middleware' => 'token.confirm'], function () {
+           
+        });
+    });
 });
+
