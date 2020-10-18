@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-use App\User;
+use App\Models\User;
 
 class AccountActivation extends Notification
 {
@@ -16,7 +16,7 @@ class AccountActivation extends Notification
     /**
      * User Object
      *
-     * @var App\User
+     * @var App\Models\User
      */
     public $user;
 

@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\VerifiesEmails;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
+
+use App\Models\User;
 
 class VerificationController extends Controller
 {
@@ -35,14 +39,18 @@ class VerificationController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        // $this->middleware('auth');
         $this->middleware('signed')->only('verify');
         $this->middleware('throttle:6,1')->only('verify', 'resend');
     }
 
     public function accountActivation(Request $request) 
     {
-        $user = User::where('activation_token', $token)->first();
+        $validator = Validator::make($request->all(), [
+            'token' => ['required', 'string', 'max:255'],
+        ]);
+
+        $user = User::where('activation_token', $request->token)->first();
 
         if (!$user) {
             return response()->json([
@@ -54,13 +62,12 @@ class VerificationController extends Controller
         $user->activation_token = null;
 
         if($user->save()) {
-            // TODO: Return User
             return response()->json([
-                
+                'message' => 'User succesfully activated'
             ], 200);
         } else {
             return response()->json([
-                'message' => 'something went wrong saving your activation link'
+                'message' => 'Something went wrong saving your activation link'
             ], 400);
         }
     }

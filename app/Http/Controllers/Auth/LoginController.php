@@ -5,6 +5,12 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+
+use JWTAuth;
+use Auth;
+
+use App\Models\User;
 
 class LoginController extends Controller
 {
@@ -46,30 +52,35 @@ class LoginController extends Controller
         if (filter_var($request->get('email'), FILTER_VALIDATE_EMAIL)) {
             //Check for right credentials
             if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-                //Create a JWT token for the User
-                if ($token = JWTAuth::attempt(['email' => $request->email, 'password' => $request->password])) {
-                    // User is authenticated. 
-                    $user = Auth::user();
-                    $user->save();
-                    return response()->json([
-                        'id' => Auth::user()->id,
-                        'name' => Auth::user()->name,
-                        'email' => Auth::user()->email,
-                        'bearer' => $token,
-                    ], 200);
+                // User is authenticated. 
+                $user = Auth::user();
+                if ($user->email_verified_at) {
+                    //Create a JWT token for the User
+                    if ($token = JWTAuth::attempt(['email' => $request->email, 'password' => $request->password])) {
+                        return response()->json([
+                            'id' => Auth::user()->id,
+                            'name' => Auth::user()->name,
+                            'email' => Auth::user()->email,
+                            'bearer' => $token,
+                        ], 200);
+                    } else {
+                        return response()->json([
+                            'message' => 'Bearer token couldn\'t be created.',
+                        ], 400);
+                    }
                 } else {
                     return response()->json([
-                        'message' => 'Het account is nog niet geactiveerd',
-                    ], 401);
+                        'message' => 'You need to confirm your account first. Please check your email.',
+                    ], 400);
                 }
             } else {
                 return response()->json([
-                    'message' => 'Deze credentials zijn niet bij ons bekend.',
+                    'message' => 'Credentials don\'t match.',
                 ], 401);
             }
         } else {
             return response()->json([
-                'message' => 'Geen geldig emailadres',
+                'message' => 'Emailaddress is not valid.',
             ], 400);
         }
     }
