@@ -49,7 +49,7 @@ class AccountActivation extends Notification
      */
     public function toMail($notifiable)
     {
-        $vueApp = 'https://alvote.nl';
+        $vueApp = config('app.url');
         $url = url($vueApp . '/confirm/account/' . $this->user->activation_token);
 
         return (new MailMessage)

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\ConferenceRoom;
+use App\Models\Association;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ConferenceRoomController extends Controller
 {
@@ -22,10 +24,44 @@ class ConferenceRoomController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
-    }
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'max:255'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors(),
+            ], 400);
+        }
+
+        $user = Auth::user();
+
+        if ($user === null) {
+            if ($validator->fails()) {
+              return response()->json([
+                  'message' => 'Not authenticated',
+              ], 400);
+          }
+        }
+
+        $room = ConferenceRoom::create([
+            'name' => $request->name,
+            'code' => Str::random(8),
+            'user_id' => $user->id
+        ]);
+        
+        if ($room) {
+            return response()->json([
+                'message' => 'Room is created!'
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Room can\'t be created. Something went wrong.',
+            ], 400);
+        }
+    } 
 
     /**
      * Store a newly created resource in storage.
