@@ -23,11 +23,10 @@ Route::group(['middelware' => ['api'], 'prefix' => 'v1'], function() {
     // TODO Implement
     // Route::post('reset-password',  [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset']);
     // Need to be Authenticated before accessing these routes
-    Route::group(['middleware' => 'jwt.verify'], function () {
-        // Route::group(['middleware' => 'token.confirm'], function () {
-           
-        // });
-        Route::post('room/create', [App\Http\Controllers\ConferenceRoomController::class, 'create']);
+    Route::group(['middleware' => 'auth.jwt'], function () {
+        Route::group(['middleware' => 'token.confirm'], function () {
+            Route::post('room/create', [App\Http\Controllers\ConferenceRoomController::class, 'create']);
+        });
     });
 });
 

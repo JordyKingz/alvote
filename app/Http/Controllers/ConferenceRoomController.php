@@ -6,6 +6,9 @@ use App\Models\ConferenceRoom;
 use App\Models\Association;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Auth;
+use Illuminate\Support\Str;
+
 
 class ConferenceRoomController extends Controller
 {
@@ -48,7 +51,7 @@ class ConferenceRoomController extends Controller
 
         $room = ConferenceRoom::create([
             'name' => $request->name,
-            'code' => Str::random(8),
+            'join_code' => Str::random(8),
             'user_id' => $user->id
         ]);
         
