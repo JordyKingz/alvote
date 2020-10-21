@@ -17,14 +17,33 @@ class ConferenceRoomController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function get()
     {
-        //
+        $user = Auth::user();
+
+        if ($user === null) {
+          return response()->json([
+              'message' => 'Not authenticated',
+          ], 400);
+        }
+
+        $rooms = ConferenceRoom::where('user_id', $user->id)->get();
+
+        if ($rooms) {
+            return response()->json([
+                'rooms' => $rooms
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'No rooms found',
+            ], 404);
+        }
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Store a newly created resource in storage.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function create(Request $request)
@@ -52,12 +71,14 @@ class ConferenceRoomController extends Controller
         $room = ConferenceRoom::create([
             'name' => $request->name,
             'join_code' => Str::random(8),
-            'user_id' => $user->id
+            'user_id' => $user->id,
+            'status' => 0,
         ]);
         
         if ($room) {
             return response()->json([
-                'message' => 'Room is created!'
+                'message' => 'Room is created!',
+                'room' => $room
             ], 200);
         } else {
             return response()->json([

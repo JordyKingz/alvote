@@ -17,6 +17,7 @@ class ConferenceRoom extends Model
     protected $fillable = [
       'name',
       'join_code',
-      'user_id'
+      'user_id',
+      'status'
   ];
 }
