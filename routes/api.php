@@ -26,7 +26,13 @@ Route::group(['middelware' => ['api'], 'prefix' => 'v1'], function() {
     Route::group(['middleware' => 'jwt.verify'], function () {
         // Route::group(['middleware' => 'token.confirm'], function () {
             Route::get('room/get', [App\Http\Controllers\ConferenceRoomController::class, 'get']);
+            Route::get('room/find/{id}', [App\Http\Controllers\ConferenceRoomController::class, 'show']);
             Route::post('room/create', [App\Http\Controllers\ConferenceRoomController::class, 'create']);
+            Route::put('room/open', [App\Http\Controllers\ConferenceRoomController::class, 'open']);
+            Route::put('room/close', [App\Http\Controllers\ConferenceRoomController::class, 'close']);
+            Route::delete('room/delete/{id}', [App\Http\Controllers\ConferenceRoomController::class, 'destroy']);
+
+            Route::post('member/invite', [App\Http\Controllers\MemberController::class, 'invite']);
         // });
     });
 });

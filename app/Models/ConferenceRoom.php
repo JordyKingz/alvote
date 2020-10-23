@@ -14,10 +14,10 @@ class ConferenceRoom extends Model
      *
      * @var array
      */
-    protected $fillable = [
-      'name',
-      'join_code',
-      'user_id',
-      'status'
-  ];
+      protected $fillable = [
+        'name',
+        'join_code',
+        'user_id',
+        'status'
+      ];
 }

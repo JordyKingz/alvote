@@ -3,7 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Member;
+use App\Models\ConferenceRoom;
+use App\Models\MemberCodes;
+use App\Models\Association;
+use App\Models\Invitation;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Auth;
+use Illuminate\Support\Str;
 
 class MemberController extends Controller
 {
@@ -37,6 +45,49 @@ class MemberController extends Controller
     {
         //
     }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function invite(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'string', 'max:255'],
+            'roomId' => ['required']
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors(),
+            ], 400);
+        }
+
+        // Create new code. The member can use this
+        // for loggin into the application
+        $memberCode = MemberCodes::create([
+          'code' => Str::random(8),
+        ]);
+
+        $room = ConferenceRoom::find($request->roomId);
+
+        try {
+          $invite = new Invitation();
+          $invite->email = $request->email;
+          $invite->room_code = $room->join_code;
+          $invite->personal_code = $memberCode->code;
+  
+          $invite->notify(new \App\Notifications\RoomInvitation($invite));
+
+          return response()->json(200);
+        } catch(Exception $e) {
+            return response()->json([
+              'message' => 'Something went wrong inviting member',
+            ], 400);
+        }
+    } 
 
     /**
      * Display the specified resource.

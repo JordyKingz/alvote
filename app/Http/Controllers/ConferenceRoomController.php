@@ -28,10 +28,13 @@ class ConferenceRoomController extends Controller
         }
 
         $rooms = ConferenceRoom::where('user_id', $user->id)->get();
+        
+        if ($rooms != null) {
+            $association = Association::find($user->association_id);
 
-        if ($rooms) {
             return response()->json([
-                'rooms' => $rooms
+                'rooms' => $rooms,
+                'association' => $association,
             ], 200);
         } else {
             return response()->json([
@@ -61,42 +64,35 @@ class ConferenceRoomController extends Controller
         $user = Auth::user();
 
         if ($user === null) {
-            if ($validator->fails()) {
-              return response()->json([
-                  'message' => 'Not authenticated',
-              ], 400);
-          }
+          return response()->json([
+              'message' => 'Not authenticated',
+          ], 400);
         }
-
-        $room = ConferenceRoom::create([
-            'name' => $request->name,
-            'join_code' => Str::random(8),
-            'user_id' => $user->id,
-            'status' => 0,
-        ]);
         
-        if ($room) {
+        try {
+            $room = ConferenceRoom::create([
+                'name' => $request->name,
+                'join_code' => Str::random(8),
+                'user_id' => $user->id,
+                'status' => 0,
+            ]);
+            
+            if ($room != null) {
+                return response()->json([
+                    'message' => 'Room is created!',
+                    'room' => $room
+                ], 200);
+            } else {
+                return response()->json([
+                    'message' => 'Room can\'t be created. Something went wrong.',
+                ], 400);
+            }
+        } catch(Exception $e) {
             return response()->json([
-                'message' => 'Room is created!',
-                'room' => $room
-            ], 200);
-        } else {
-            return response()->json([
-                'message' => 'Room can\'t be created. Something went wrong.',
+              'message' => 'Something went wrong setting creating the room',
             ], 400);
         }
     } 
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
 
     /**
      * Display the specified resource.
@@ -104,32 +100,134 @@ class ConferenceRoomController extends Controller
      * @param  \App\Models\ConferenceRoom  $conferenceRoom
      * @return \Illuminate\Http\Response
      */
-    public function show(ConferenceRoom $conferenceRoom)
+    public function show(ConferenceRoom $conferenceRoom, $id)
     {
-        //
+        $user = Auth::user();
+
+        if ($user === null) {
+            if ($validator->fails()) {
+              return response()->json([
+                  'message' => 'Not authenticated',
+              ], 400);
+          }
+        }
+
+        $room = ConferenceRoom::find($id);
+
+        if ($room != null) {
+            $association = Association::find($user->association_id);
+
+            return response()->json([
+                'room' => $room,
+                'association' => $association,
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'No rooms found',
+            ], 404);
+        }
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\ConferenceRoom  $conferenceRoom
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function edit(ConferenceRoom $conferenceRoom)
+    public function open(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'id' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors(),
+            ], 400);
+        }
+
+        $user = Auth::user();
+
+        if ($user === null) {
+            return response()->json([
+                'message' => 'Not authenticated',
+            ], 400);
+        }
+
+        $room = ConferenceRoom::find($request->id);
+
+        if ($room === null) {
+            return response()->json([
+                'message' => 'Room not found',
+            ], 404);
+        }
+
+        try {
+          $room->status = 1;
+          $room->save();
+
+          $association = Association::find($user->association_id);
+
+          return response()->json([
+              'room' => $room,
+              'association' => $association,
+          ], 200);
+        } catch(Exception $e) {
+            return response()->json([
+              'message' => 'Something went wrong setting room to open',
+          ], 400);
+        }
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\ConferenceRoom  $conferenceRoom
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, ConferenceRoom $conferenceRoom)
+    public function close(Request $request, ConferenceRoom $conferenceRoom)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'id' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors(),
+            ], 400);
+        }
+
+        $user = Auth::user();
+
+        if ($user === null) {
+            return response()->json([
+                'message' => 'Not authenticated',
+            ], 400);
+        }
+
+        $room = ConferenceRoom::find($request->id);
+
+        if ($room === null) {
+            return response()->json([
+                'message' => 'Room not found',
+            ], 404);
+        }
+
+        try {
+          $room->status = 2;
+          $room->save();
+
+          $association = Association::find($user->association_id);
+
+          return response()->json([
+              'room' => $room,
+              'association' => $association,
+          ], 200);
+        } catch(Exception $e) {
+            return response()->json([
+              'message' => 'Something went wrong closing the room',
+          ], 400);
+        }
     }
 
     /**
@@ -138,8 +236,16 @@ class ConferenceRoomController extends Controller
      * @param  \App\Models\ConferenceRoom  $conferenceRoom
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ConferenceRoom $conferenceRoom)
+    public function destroy(ConferenceRoom $conferenceRoom, $id)
     {
-        //
+        $room = ConferenceRoom::destroy($id);
+
+        if ($room) {
+            return response()->json(200);
+        } else {
+            return response()->json([
+                'message' => 'Failed to delete room. Try again.',
+            ], 400);
+        }
     }
 }
