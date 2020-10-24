@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ConferenceRoom;
 use App\Models\Association;
+use App\Models\MemberCodes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Auth;
@@ -129,6 +130,65 @@ class ConferenceRoomController extends Controller
     }
 
     /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function join(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'roomCode' => ['required'],
+            'personalCode' => ['required']
+        ]);
+        
+        // check validator
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors(),
+            ], 400);
+        }
+
+        // check the codes
+        $memberCode = MemberCodes::where('code', $request->personalCode)->first();
+        $room = ConferenceRoom::where('join_code', $request->roomCode)->first();
+
+        if ($memberCode == null || $room == null) {
+            return response()->json([
+              'message' => 'One of your codes is invalid.',
+            ], 400);
+        }
+
+        // check if room is open
+        // status = 0 created
+        // status = 1 open
+        // status = 2 closed
+        if ($room->status != 1) {
+            return response()->json([
+              'message' => 'Room is closed. Wait for your host to open the room.',
+            ], 400);
+        } 
+
+        try {
+            $room->members_joined++;
+            $room->save();
+
+            // TODO:
+            // member has joined the room. 
+            // it would be awesome if the admin
+            // get an automatic refresh through pusher
+
+            return response()->json([
+              'room' => $room,
+            ], 200);
+        } catch(Exception $e) {
+            return response()->json([
+              'message' => 'Something went wrong joining the room: '. $e,
+            ], 400);
+        }
+    } 
+
+    /**
      * Show the form for editing the specified resource.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -174,7 +234,7 @@ class ConferenceRoomController extends Controller
           ], 200);
         } catch(Exception $e) {
             return response()->json([
-              'message' => 'Something went wrong setting room to open',
+              'message' => 'Something went wrong setting room to open: '. $e,
           ], 400);
         }
     }
@@ -225,7 +285,7 @@ class ConferenceRoomController extends Controller
           ], 200);
         } catch(Exception $e) {
             return response()->json([
-              'message' => 'Something went wrong closing the room',
+              'message' => 'Something went wrong closing the room: '. $e,
           ], 400);
         }
     }

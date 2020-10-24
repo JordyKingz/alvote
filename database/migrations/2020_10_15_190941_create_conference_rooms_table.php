@@ -19,6 +19,8 @@ class CreateConferenceRoomsTable extends Migration
             $table->string('join_code')->unique();
             $table->integer('status');
             $table->integer('user_id')->nullable();
+            $table->integer('invitations_send')->default(0);
+            $table->integer('members_joined')->default(0);
             $table->timestamps();
         });
     }

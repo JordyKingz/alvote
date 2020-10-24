@@ -18,6 +18,8 @@ class ConferenceRoom extends Model
         'name',
         'join_code',
         'user_id',
-        'status'
+        'status',
+        'invitations_send',
+        'members_joined'
       ];
 }

@@ -41,24 +41,14 @@ class MemberController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function invite(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'email' => ['required', 'string', 'max:255'],
             'roomId' => ['required']
         ]);
-
+        
+        // check validator
         if ($validator->fails()) {
             return response()->json([
                 'message' => $validator->errors(),
@@ -68,23 +58,42 @@ class MemberController extends Controller
         // Create new code. The member can use this
         // for loggin into the application
         $memberCode = MemberCodes::create([
-          'code' => Str::random(8),
+            'code' => Str::random(8),
         ]);
 
         $room = ConferenceRoom::find($request->roomId);
 
-        try {
-          $invite = new Invitation();
-          $invite->email = $request->email;
-          $invite->room_code = $room->join_code;
-          $invite->personal_code = $memberCode->code;
-  
-          $invite->notify(new \App\Notifications\RoomInvitation($invite));
+        if ($room == null) {
+            return response()->json([
+              'message' => 'No room found. Try again.',
+            ], 404);
+        }
 
-          return response()->json(200);
+        try {
+            // create invitation
+            $invite = new Invitation();
+            $invite->email = $request->email;
+            $invite->room_code = $room->join_code;
+            $invite->personal_code = $memberCode->code;
+            
+            // send notification email
+            $invite->notify(new \App\Notifications\RoomInvitation($invite));
+
+            try {
+                $room->invitations_send++;
+                $room->save();
+
+                return response()->json([
+                    'room' => $room,
+                ], 200);
+            } catch (Exception $e) {
+                    return response()->json([
+                    'message' => 'Something went wrong increment room invitations: '.$e,
+                  ], 400);
+            }
         } catch(Exception $e) {
             return response()->json([
-              'message' => 'Something went wrong inviting member',
+              'message' => 'Something went wrong inviting member: '.$e,
             ], 400);
         }
     } 
