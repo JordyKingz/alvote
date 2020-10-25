@@ -16,6 +16,7 @@ class CreateMemberCodesTable extends Migration
         Schema::create('member_codes', function (Blueprint $table) {
             $table->id();
             $table->string('code')->unique();
+            $table->boolean('is_used')->default(false);
             $table->timestamps();
         });
     }

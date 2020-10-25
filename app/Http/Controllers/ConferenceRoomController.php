@@ -151,6 +151,13 @@ class ConferenceRoomController extends Controller
 
         // check the codes
         $memberCode = MemberCodes::where('code', $request->personalCode)->first();
+
+        if ($memberCode->is_used) {
+            return response()->json([
+              'message' => 'This code already has been used.',
+            ], 400);
+        }
+
         $room = ConferenceRoom::where('join_code', $request->roomCode)->first();
 
         if ($memberCode == null || $room == null) {
@@ -168,6 +175,16 @@ class ConferenceRoomController extends Controller
               'message' => 'Room is closed. Wait for your host to open the room.',
             ], 400);
         } 
+
+        // Set code to used
+        try {
+            $memberCode->is_used = true;
+            $memberCode->save();
+        } catch (Exception $e) {
+            return response()->json([
+              'message' => 'Something went wrong joining the room: '. $e,
+            ], 400);
+        }
 
         try {
             $room->members_joined++;

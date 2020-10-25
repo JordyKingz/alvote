@@ -16,5 +16,6 @@ class MemberCodes extends Model
      */
     protected $fillable = [
       'code',
+      'is_used',
     ];
 }
