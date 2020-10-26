@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Events\MemberJoinedRoom;
+
 class ConferenceRoom extends Model
 {
     use HasFactory;
@@ -21,5 +23,9 @@ class ConferenceRoom extends Model
         'status',
         'invitations_send',
         'members_joined'
+      ];
+
+      protected $dispatchesEvents = [
+        'updated' => MemberJoinedRoom::class,
       ];
 }
