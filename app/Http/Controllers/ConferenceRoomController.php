@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ConferenceRoom;
 use App\Models\Association;
 use App\Models\MemberCodes;
+use App\Models\Vote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Auth;
@@ -117,10 +118,12 @@ class ConferenceRoomController extends Controller
 
         if ($room != null) {
             $association = Association::find($user->association_id);
+            $votes = Vote::where('room_id', $room->id)->get();
 
             return response()->json([
                 'room' => $room,
                 'association' => $association,
+                'votes' => $votes,
             ], 200);
         } else {
             return response()->json([

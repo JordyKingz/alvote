@@ -25,6 +25,7 @@ Route::group(['middelware' => ['api'], 'prefix' => 'v1'], function() {
 
     // Need to be Authenticated before accessing these routes
     Route::group(['middleware' => 'jwt.verify'], function () {
+        // Rooms
         Route::get('room/get', [App\Http\Controllers\ConferenceRoomController::class, 'get']);
         Route::get('room/find/{id}', [App\Http\Controllers\ConferenceRoomController::class, 'show']);
         Route::post('room/create', [App\Http\Controllers\ConferenceRoomController::class, 'create']);
@@ -34,6 +35,9 @@ Route::group(['middelware' => ['api'], 'prefix' => 'v1'], function() {
         
         // Invite member
         Route::post('member/invite', [App\Http\Controllers\MemberController::class, 'invite']);
+
+        // Votes
+        Route::post('vote/create', [App\Http\Controllers\VoteController::class, 'create']);
     });
 
     // Member join room
