@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ConferenceRoom;
 
 class MemberCodes extends Model
 {
@@ -18,4 +19,8 @@ class MemberCodes extends Model
       'code',
       'is_used',
     ];
+
+    public function room(){
+      return $this->belongsTo(ConferenceRoom::class);
+    }
 }

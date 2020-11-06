@@ -14,16 +14,16 @@ class MemberJoinedRoom implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $member;
+    public $code;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($member)
+    public function __construct($code)
     {
-        $this->member = $member;
+        $this->code = $code;
     }
 
     /**
@@ -33,6 +33,6 @@ class MemberJoinedRoom implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('member-joined');
+        return new PrivateChannel('memberJoined-' . $this->code);
     }
 }

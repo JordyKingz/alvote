@@ -8,6 +8,7 @@ use App\Models\MemberCodes;
 use App\Models\Vote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Events\MemberJoinedRoom;
 use Auth;
 use Illuminate\Support\Str;
 
@@ -181,6 +182,13 @@ class ConferenceRoomController extends Controller
 
         // Set code to used
         try {
+            // TODO:
+            // member has joined the room. 
+            // it would be awesome if the admin
+            // get an automatic refresh through pusher
+            $code = $room->join_code;
+            broadcast(new MemberJoinedRoom($code->load('code')))->toOthers();
+
             $memberCode->is_used = true;
             $memberCode->save();
         } catch (Exception $e) {
@@ -192,11 +200,6 @@ class ConferenceRoomController extends Controller
         try {
             $room->members_joined++;
             $room->save();
-
-            // TODO:
-            // member has joined the room. 
-            // it would be awesome if the admin
-            // get an automatic refresh through pusher
 
             return response()->json([
               'room' => $room,
