@@ -10,20 +10,22 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
+use App\Models\ConferenceRoom;
+
 class MemberJoinedRoom implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $code;
+    public ConferenceRoom $room;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($code)
+    public function __construct(ConferenceRoom $room)
     {
-        $this->code = $code;
+        $this->room = $room;
     }
 
     /**
@@ -33,6 +35,11 @@ class MemberJoinedRoom implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('memberJoined-' . $this->code);
+        return new PrivateChannel('memberJoined-' . $this->room->join_code);
+    }
+
+    public function broadcastAs()
+    {
+        return 'MemberJoinedRoom';
     }
 }

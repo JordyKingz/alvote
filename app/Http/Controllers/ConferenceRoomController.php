@@ -155,14 +155,21 @@ class ConferenceRoomController extends Controller
 
         // check the codes
         $memberCode = MemberCodes::where('code', $request->personalCode)->first();
-
-        if ($memberCode->is_used) {
-            return response()->json([
-              'message' => 'This code already has been used.',
-            ], 400);
+        
+        if ($memberCode != null) {
+          if ($memberCode->is_used) {
+              return response()->json([
+                'message' => 'This code already has been used.',
+              ], 400);
+          }
+        } else {
+              return response()->json([
+                'message' => 'no valid code found',
+              ], 404);
         }
-
+        
         $room = ConferenceRoom::where('join_code', $request->roomCode)->first();
+        // $room = ConferenceRoom::where('join_code', $request->join_code)->first();
 
         if ($memberCode == null || $room == null) {
             return response()->json([
@@ -186,8 +193,7 @@ class ConferenceRoomController extends Controller
             // member has joined the room. 
             // it would be awesome if the admin
             // get an automatic refresh through pusher
-            $code = $room->join_code;
-            broadcast(new MemberJoinedRoom($code->load('code')))->toOthers();
+            event(new \App\Events\MemberJoinedRoom($room));
 
             $memberCode->is_used = true;
             $memberCode->save();
