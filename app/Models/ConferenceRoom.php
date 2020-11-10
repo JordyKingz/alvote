@@ -25,9 +25,9 @@ class ConferenceRoom extends Model
         'members_joined'
       ];
 
-      protected $dispatchesEvents = [
-        'updated' => MemberJoinedRoom::class,
-      ];
+      // protected $dispatchesEvents = [
+      //   'updated' => MemberJoinedRoom::class,
+      // ];
 
       public function members(){
         return $this->hasMany(MemberCodes::class);

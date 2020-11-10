@@ -189,12 +189,6 @@ class ConferenceRoomController extends Controller
 
         // Set code to used
         try {
-            // TODO:
-            // member has joined the room. 
-            // it would be awesome if the admin
-            // get an automatic refresh through pusher
-            event(new \App\Events\MemberJoinedRoom($room));
-
             $memberCode->is_used = true;
             $memberCode->save();
         } catch (Exception $e) {
@@ -206,6 +200,9 @@ class ConferenceRoomController extends Controller
         try {
             $room->members_joined++;
             $room->save();
+
+            // member joined
+            broadcast(new \App\Events\MemberJoinedRoom($room))->toOthers();
 
             return response()->json([
               'room' => $room,

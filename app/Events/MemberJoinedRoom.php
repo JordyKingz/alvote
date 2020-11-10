@@ -35,11 +35,11 @@ class MemberJoinedRoom implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('memberJoined-' . $this->room->join_code);
+        return new Channel('memberJoined');
     }
 
-    public function broadcastAs()
-    {
-        return 'MemberJoinedRoom';
-    }
+    // public function broadcastAs()
+    // {
+    //     return 'memberJoined-' . $this->room->join_code;
+    // }
 }
