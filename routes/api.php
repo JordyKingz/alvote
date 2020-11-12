@@ -32,6 +32,9 @@ Route::group(['middelware' => ['api'], 'prefix' => 'v1'], function() {
         Route::put('room/open', [App\Http\Controllers\ConferenceRoomController::class, 'open']);
         Route::put('room/close', [App\Http\Controllers\ConferenceRoomController::class, 'close']);
         Route::delete('room/delete/{id}', [App\Http\Controllers\ConferenceRoomController::class, 'destroy']);
+
+        // votes
+        Route::get('votes/room/{id}', [App\Http\Controllers\VoteController::class, 'show']);
         
         // Invite member
         Route::post('member/invite', [App\Http\Controllers\MemberController::class, 'invite']);

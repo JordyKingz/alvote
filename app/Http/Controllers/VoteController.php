@@ -98,17 +98,39 @@ class VoteController extends Controller
     {
         //
     }
-
+    
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Vote  $vote
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Vote $vote)
-    {
-        //
-    }
+    * Display the specified resource.
+    *
+    * @param  \App\Models\ConferenceRoom  $conferenceRoom
+    * @return \Illuminate\Http\Response
+    */
+   public function show(Vote $vote, $id)
+   {
+       $user = Auth::user();
+
+       if ($user === null) {
+           if ($validator->fails()) {
+             return response()->json([
+                 'message' => 'Not authenticated',
+             ], 400);
+         }
+       }
+
+       $room = ConferenceRoom::find($id);
+
+       if ($room != null) {
+           $votes = Vote::where('room_id', $room->id)->get();
+
+           return response()->json([
+               'votes' => $votes,
+           ], 200);
+       } else {
+           return response()->json([
+               'message' => 'No rooms found',
+           ], 404);
+       }
+   }
 
     /**
      * Show the form for editing the specified resource.
