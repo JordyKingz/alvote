@@ -17,6 +17,7 @@ class CreateMemberVotesTable extends Migration
             $table->id();
             $table->integer('answer_id');
             $table->integer('type')->default(0); // 1 agree, 2 disagree, 3 once if
+            $table->string('once_if')->nullable();
             $table->timestamps();
         });
     }

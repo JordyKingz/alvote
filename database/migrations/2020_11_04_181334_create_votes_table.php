@@ -17,7 +17,7 @@ class CreateVotesTable extends Migration
             $table->id();
             $table->string('name');
             $table->integer('room_id');
-            $table->integer('status')->default(0);
+            $table->integer('status')->default(0); // 0 closed, 1 open, 2 votes in.
             $table->timestamps();
         });
     }

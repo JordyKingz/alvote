@@ -41,6 +41,8 @@ Route::group(['middelware' => ['api'], 'prefix' => 'v1'], function() {
 
         // Votes
         Route::post('vote/create', [App\Http\Controllers\VoteController::class, 'create']);
+        Route::put('vote/open', [App\Http\Controllers\VoteController::class, 'open']);
+        Route::put('vote/close', [App\Http\Controllers\VoteController::class, 'close']);
     });
 
     // Member join room

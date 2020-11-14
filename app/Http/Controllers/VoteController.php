@@ -132,6 +132,102 @@ class VoteController extends Controller
        }
    }
 
+   /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function open(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors(),
+            ], 400);
+        }
+
+        $user = Auth::user();
+
+        if ($user === null) {
+            return response()->json([
+                'message' => 'Not authenticated',
+            ], 400);
+        }
+
+        $vote = Vote::find($request->id);
+
+        if ($vote === null) {
+            return response()->json([
+                'message' => 'Vote not found',
+            ], 404);
+        }
+
+        try {
+          $vote->status = 1;
+          $vote->save();
+
+          return response()->json([
+              'vote' => $vote,
+          ], 200);
+        } catch(Exception $e) {
+            return response()->json([
+              'message' => 'Something went wrong setting vote to open: '. $e,
+          ], 400);
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function close(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors(),
+            ], 400);
+        }
+
+        $user = Auth::user();
+
+        if ($user === null) {
+            return response()->json([
+                'message' => 'Not authenticated',
+            ], 400);
+        }
+
+        $vote = Vote::find($request->id);
+
+        if ($vote === null) {
+            return response()->json([
+                'message' => 'Vote not found',
+            ], 404);
+        }
+
+        try {
+          $vote->status = 2;
+          $vote->save();
+
+          return response()->json([
+              'vote' => $vote,
+          ], 200);
+        } catch(Exception $e) {
+            return response()->json([
+              'message' => 'Something went wrong closing the vote: '. $e,
+          ], 400);
+        }
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
