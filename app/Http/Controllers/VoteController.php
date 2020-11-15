@@ -121,6 +121,7 @@ class VoteController extends Controller
 
        if ($room != null) {
            $votes = Vote::where('room_id', $room->id)->get();
+           $votes = $votes->fresh('answers');
 
            return response()->json([
                'votes' => $votes,
@@ -169,6 +170,10 @@ class VoteController extends Controller
         try {
           $vote->status = 1;
           $vote->save();
+          
+          $vote = $vote->fresh('answers');
+          // vote is open
+          broadcast(new \App\Events\VoteOpen($vote))->toOthers();
 
           return response()->json([
               'vote' => $vote,

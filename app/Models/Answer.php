@@ -18,4 +18,12 @@ class Answer extends Model
       'answer',
       'vote_id',
     ];
+
+    public function vote() {
+      return $this->belongsTo(Vote::class);
+    }
+
+    public function answers() {
+      return $this->hasMany(MemberVote::class, 'answer_id');
+    }
 }

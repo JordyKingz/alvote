@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class MemberVote extends Model
 {
     use HasFactory;
+
+    public function answer() {
+      return $this->belongsTo(Answer::class);
+    }
 }

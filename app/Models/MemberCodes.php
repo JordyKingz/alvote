@@ -20,7 +20,7 @@ class MemberCodes extends Model
       'is_used',
     ];
 
-    public function room(){
+    public function room() {
       return $this->belongsTo(ConferenceRoom::class);
     }
 }

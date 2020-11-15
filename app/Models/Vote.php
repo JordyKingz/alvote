@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Vote extends Model
 {
@@ -18,4 +19,8 @@ class Vote extends Model
       'name',
       'room_id',
     ];
+
+    public function answers() {
+      return $this->hasMany(Answer::class, 'vote_id');
+    }
 }
