@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Member;
+use App\Models\Vote;
 use App\Models\ConferenceRoom;
 use App\Models\MemberCodes;
+use App\Models\MemberVote;
 use App\Models\Association;
 use App\Models\Invitation;
 
@@ -55,6 +57,8 @@ class MemberController extends Controller
             ], 400);
         }
 
+        // TODO check if user is authenticated
+
         // Create new code. The member can use this
         // for loggin into the application
         $memberCode = MemberCodes::create([
@@ -99,14 +103,53 @@ class MemberController extends Controller
     } 
 
     /**
-     * Display the specified resource.
+     * Update the specified resource in storage.
      *
-     * @param  \App\Models\Member  $member
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function show(Member $member)
+    public function vote(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'id' => ['required'],
+            'answerId' => ['required'],
+            'userVote' => ['required'],
+            'reason' => ['requiredIf:userVote,2'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors(),
+            ], 400);
+        }
+
+        $vote = Vote::find($request->id);
+
+        if ($vote === null) {
+            return response()->json([
+                'message' => 'Vote not found',
+            ], 404);
+        }
+
+        try {
+          // MemberVote
+          $memberVote = MemberVote::create([
+            'answer_id' => $request->answerId,
+            'type' => $request->userVote,
+            'once_if' => $request->reason,
+          ]);
+          
+          if ($memberVote) {
+            // Member has voted
+            broadcast(new \App\Events\MemberVoted($memberVote))->toOthers();
+          }
+
+          return response()->json(200);
+        } catch(Exception $e) {
+            return response()->json([
+              'message' => 'Something went wrong closing the vote: '. $e,
+          ], 400);
+        }
     }
 
     /**

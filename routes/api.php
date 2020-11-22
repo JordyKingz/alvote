@@ -44,6 +44,9 @@ Route::group(['middelware' => ['api'], 'prefix' => 'v1'], function() {
     });
 
     // Member join room
-    Route::post('room/join', [App\Http\Controllers\ConferenceRoomController::class, 'join']);
+    Route::post('member/room/join', [App\Http\Controllers\ConferenceRoomController::class, 'join']);
+
+    // Member join room
+    Route::post('member/vote', [App\Http\Controllers\MemberController::class, 'vote']);
 });
 

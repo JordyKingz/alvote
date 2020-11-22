@@ -16,7 +16,7 @@ class CreateMemberVotesTable extends Migration
         Schema::create('member_votes', function (Blueprint $table) {
             $table->id();
             $table->integer('answer_id');
-            $table->integer('type')->default(0); // 1 agree, 2 disagree, 3 once if
+            $table->integer('type')->default(0); // 1 agree, 2 once if, 3 disagree
             $table->string('once_if')->nullable();
             $table->timestamps();
         });
