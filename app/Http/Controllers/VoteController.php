@@ -107,30 +107,30 @@ class VoteController extends Controller
     */
    public function show(Vote $vote, $id)
    {
-       $user = Auth::user();
+        $user = Auth::user();
 
-       if ($user === null) {
-           if ($validator->fails()) {
-             return response()->json([
-                 'message' => 'Not authenticated',
-             ], 400);
-         }
-       }
+        if ($user === null) {
+            if ($validator->fails()) {
+              return response()->json([
+                  'message' => 'Not authenticated',
+              ], 400);
+          }
+        }
 
-       $room = ConferenceRoom::find($id);
+        $room = ConferenceRoom::find($id);
 
-       if ($room != null) {
-           $votes = Vote::where('room_id', $room->id)->get();
-           $votes = $votes->fresh('answers');
+        if ($room != null) {
+            $votes = Vote::where('room_id', $room->id)->get();
+            $votes = $votes->fresh('answers.memberVotes');
 
-           return response()->json([
-               'votes' => $votes,
-           ], 200);
-       } else {
-           return response()->json([
-               'message' => 'No rooms found',
-           ], 404);
-       }
+            return response()->json([
+                'votes' => $votes
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'No rooms found',
+            ], 404);
+        }
    }
 
    /**

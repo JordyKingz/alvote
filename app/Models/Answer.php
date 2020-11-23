@@ -20,10 +20,10 @@ class Answer extends Model
     ];
 
     public function vote() {
-      return $this->belongsTo(Vote::class);
+      return $this->belongsTo(Vote::class, 'vote_id');
     }
 
-    public function answers() {
-      return $this->hasMany(MemberVote::class, 'answer_id');
+    public function memberVotes() {
+      return $this->hasMany(MemberVote::class);
     }
 }

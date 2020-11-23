@@ -21,6 +21,6 @@ class MemberVote extends Model
   ];
 
     public function answer() {
-      return $this->belongsTo(Answer::class);
+      return $this->belongsTo(Answer::class, 'answer_id');
     }
 }

@@ -29,7 +29,7 @@ class ConferenceRoom extends Model
       //   'updated' => MemberJoinedRoom::class,
       // ];
 
-      public function members() {
-        return $this->hasMany(MemberCodes::class);
-      }
+      // public function members() {
+      //   return $this->hasMany(MemberCodes::class);
+      // }
 }
